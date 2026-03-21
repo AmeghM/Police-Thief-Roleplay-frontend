@@ -1,0 +1,111 @@
+import React, { useState } from "react";
+
+function RoomFormModal({ open, setOpen, type }) {
+  const [players, setPlayers] = useState("");
+  const [roles, setRoles] = useState([]);
+
+  if (!open) return null;
+
+  const handlePlayersChange = (e) => {
+    const value = Number(e.target.value);
+    setPlayers(value);
+
+    const newRoles = Array(value).fill({ role: "", points: "" });
+    setRoles(newRoles);
+  };
+
+  const handleRoleChange = (index, field, value) => {
+    const updatedRoles = [...roles];
+    updatedRoles[index][field] = value;
+    setRoles(updatedRoles);
+  };
+
+  const handleCreate = () => {
+    if (players < 3) {
+      alert("Minimum 3 players required");
+      return;
+    }
+    const roleNames = roles.map((r) => r.role.toLowerCase());
+
+    if (!roleNames.includes("police") || !roleNames.includes("thief")) {
+      alert("You must include at least one Police and one Thief role");
+      return;
+    }
+  };
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
+        <div className="bg-gray-800 p-6 rounded-lg w-87.5 shadow-xl ">
+          <h2 className="text-xl font-bold mb-4 text-center">
+            {type === "create" ? "Create Room" : "Join Room"}
+          </h2>
+          <input
+            type="text"
+            placeholder="Enter Your Name"
+            className="border p-2 w-full mb-3 rounded-lg"
+          />
+          {type === "create" && (
+            <>
+              <input
+                type="number"
+                placeholder="No. of players (3>)"
+                min={3}
+                className="border p-2 w-full mb-3 rounded-lg"
+                onChange={handlePlayersChange}
+              />
+              <input
+                type="number"
+                placeholder="No. of rounds"
+                className="border p-2 w-full mb-3 rounded-lg"
+              />
+              <p className="">Add the roles:</p>
+              <div className="max-h-30 overflow-y-auto mb-3">
+                {roles.map((r, index) => (
+                  <div key={index} className="flex gap-2 mb-2 p-2">
+                    <input
+                      placeholder="Role (Police)"
+                      className="border p-2 w-1/2 rounded"
+                      onChange={(e) =>
+                        handleRoleChange(index, "role", e.target.value)
+                      }
+                    />
+
+                    <input
+                      type="number"
+                      placeholder="Points"
+                      className="border p-2 w-1/2 rounded"
+                      onChange={(e) =>
+                        handleRoleChange(index, "points", e.target.value)
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {type === "join" && (
+            <input
+              placeholder="Room Code"
+              className="border p-2 w-full mb-3 rounded-lg"
+            />
+          )}
+
+          <button
+            className={` text-white px-4 py-2 w-full rounded cursor-pointer ${type === "create" ? "bg-orange-400" : "bg-gray-600"}`}
+          >
+            {type === "create" ? "Create" : "Join"}
+          </button>
+
+          <button
+            onClick={() => setOpen(false)}
+            className="mt-3 text-gray-500 w-full cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default RoomFormModal;
