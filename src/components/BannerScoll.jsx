@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
-import Kallan from "../assets/media/banner/KallanRun.png";
-import Police from "../assets/media/banner/policeRun.png";
+import Kallan from "../assets/media/Banner/KallanRun.png";
+import Police from "../assets/media/Banner/policeRun.png";
 
 function BannerScroll() {
   // MORE groups = no gap
