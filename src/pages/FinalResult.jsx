@@ -24,7 +24,7 @@ function FinalResult() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-600">
-              <tr className="bg-yellow-500/10 border-l-4 border-yellow-400 transition hover:scale-[1.01]  hover:bg-gray-800/70 transition text-center">
+              <tr className="bg-yellow-500/10 border-l-4 border-yellow-400  hover:scale-[1.01]  hover:bg-gray-800/70 transition text-center">
                 <td className="px-3 py-2">1</td>
                 <td className="px-3 py-2 font-medium">Max</td>
                 <td className="px-3 py-2 font-medium">1000</td>

@@ -26,7 +26,10 @@ function Game() {
               (Discuss & Catch the thief)
             </p>
 
-            <button className=" lg:hidden bg-yellow-400 hover:bg-yellow-500 px-5 py-2 rounded text-black font-semibold text-sm">
+            <button
+              onClick={() => setSelectModal(true)}
+              className=" lg:hidden bg-yellow-400 hover:bg-yellow-500 px-5 py-2 rounded text-black font-semibold text-sm"
+            >
               Select Thief
             </button>
           </div>
