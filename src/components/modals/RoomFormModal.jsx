@@ -55,6 +55,11 @@ function RoomFormModal({ open, setOpen, type }) {
       rounds,
     };
 
+    if (!socket.connected) {
+      console.log("Waiting");
+      socket.connect();
+    }
+
     console.log("Creating room ", formData);
     socket.emit("create_room", formData);
 
@@ -68,7 +73,7 @@ function RoomFormModal({ open, setOpen, type }) {
     }
 
     localStorage.setItem("name", username);
-    socket.connect();
+
     socket.emit("join_room", {
       username,
       roomCode,
@@ -78,8 +83,6 @@ function RoomFormModal({ open, setOpen, type }) {
   };
 
   useEffect(() => {
-    socket.connect();
-
     const handleRoomCreated = (room) => {
       toast.success("Room created");
       navigate(`/lobby/${room.code}`);
@@ -99,9 +102,6 @@ function RoomFormModal({ open, setOpen, type }) {
   }, []);
 
   console.log(roomCode);
-  socket.on("connect", () => {
-    console.log("✅ Connected to server:", socket.id);
-  });
 
   if (!open) return null;
   return (
