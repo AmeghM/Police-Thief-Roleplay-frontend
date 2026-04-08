@@ -99,6 +99,9 @@ function RoomFormModal({ open, setOpen, type }) {
   }, []);
 
   console.log(roomCode);
+  socket.on("connect", () => {
+    console.log("✅ Connected to server:", socket.id);
+  });
 
   if (!open) return null;
   return (
