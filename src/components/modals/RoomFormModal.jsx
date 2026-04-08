@@ -1,16 +1,27 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Toaster, toast } from "sonner";
+import { socket } from "../../socket/socket";
+import { useEffect } from "react";
 
 function RoomFormModal({ open, setOpen, type }) {
-  const [players, setPlayers] = useState("");
+  const [players, setPlayers] = useState(3);
   const [roles, setRoles] = useState([]);
+  const [username, setUsername] = useState("");
+  const [rounds, setRounds] = useState(5);
+  const [roomCode, setRoomCode] = useState("");
+  const navigate = useNavigate();
 
-  if (!open) return null;
+  console.log(username);
 
   const handlePlayersChange = (e) => {
     const value = Number(e.target.value);
     setPlayers(value);
 
-    const newRoles = Array(value).fill({ role: "", points: "" });
+    const newRoles = Array.from({ length: value }, () => ({
+      role: "",
+      points: "",
+    }));
     setRoles(newRoles);
   };
 
@@ -20,20 +31,79 @@ function RoomFormModal({ open, setOpen, type }) {
     setRoles(updatedRoles);
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
+    if (!username) {
+      toast.error("Enter your name");
+      return;
+    }
     if (players < 3) {
-      alert("Minimum 3 players required");
+      toast.error("Minimum 3 players required");
       return;
     }
     const roleNames = roles.map((r) => r.role.toLowerCase());
 
     if (!roleNames.includes("police") || !roleNames.includes("thief")) {
-      alert("You must include at least one Police and one Thief role");
+      toast.warning("You must include at least one Police and one Thief role");
       return;
     }
+    localStorage.setItem("name", username);
+
+    const formData = {
+      username,
+      players,
+      roles,
+      rounds,
+    };
+
+    console.log("Creating room ", formData);
+    socket.emit("create_room", formData);
+
+    console.log(formData);
   };
+
+  const handleJoin = async () => {
+    if (!username || !roomCode) {
+      toast.error("Enter name and room code!!");
+      return;
+    }
+
+    localStorage.setItem("name", username);
+    socket.connect();
+    socket.emit("join_room", {
+      username,
+      roomCode,
+    });
+
+    toast.success(`Room joined ${username}`);
+  };
+
+  useEffect(() => {
+    socket.connect();
+
+    const handleRoomCreated = (room) => {
+      toast.success("Room created");
+      navigate(`/lobby/${room.code}`);
+    };
+
+    const handleRoomUpdate = (room) => {
+      navigate(`/lobby/${room.code}`);
+    };
+
+    socket.on("room_created", handleRoomCreated);
+    socket.on("room_update", handleRoomUpdate);
+
+    return () => {
+      socket.off("room_created", handleRoomCreated);
+      socket.off("room_update", handleRoomUpdate);
+    };
+  }, []);
+
+  console.log(roomCode);
+
+  if (!open) return null;
   return (
     <>
+      <Toaster position="top-center" />;
       <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
         <div className="bg-gray-800 p-6 rounded-lg w-87.5 shadow-xl ">
           <h2 className="text-xl font-bold mb-4 text-center">
@@ -41,6 +111,8 @@ function RoomFormModal({ open, setOpen, type }) {
           </h2>
           <input
             type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="Enter Your Name"
             className="border p-2 w-full mb-3 rounded-lg"
           />
@@ -50,12 +122,16 @@ function RoomFormModal({ open, setOpen, type }) {
                 type="number"
                 placeholder="No. of players (3>)"
                 min={3}
+                value={players}
                 className="border p-2 w-full mb-3 rounded-lg"
-                onChange={handlePlayersChange}
+                onChange={(e) => handlePlayersChange(e)}
               />
               <input
                 type="number"
                 placeholder="No. of rounds"
+                min={1}
+                value={rounds}
+                onChange={(e) => setRounds(Number(e.target.value))}
                 className="border p-2 w-full mb-3 rounded-lg"
               />
               <p className="">Add the roles:</p>
@@ -73,6 +149,7 @@ function RoomFormModal({ open, setOpen, type }) {
                     <input
                       type="number"
                       placeholder="Points"
+                      min={0}
                       className="border p-2 w-1/2 rounded"
                       onChange={(e) =>
                         handleRoleChange(index, "points", e.target.value)
@@ -87,10 +164,12 @@ function RoomFormModal({ open, setOpen, type }) {
             <input
               placeholder="Room Code"
               className="border p-2 w-full mb-3 rounded-lg"
+              onChange={(e) => setRoomCode(e.target.value)}
             />
           )}
 
           <button
+            onClick={type === "create" ? handleCreate : handleJoin}
             className={` text-white px-4 py-2 w-full rounded cursor-pointer ${type === "create" ? "bg-orange-400" : "bg-gray-600"}`}
           >
             {type === "create" ? "Create" : "Join"}

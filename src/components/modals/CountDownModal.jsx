@@ -10,13 +10,8 @@ function CountDownModal() {
       setCount((prev) => prev - 1);
     }, 1000);
 
-    const timer = setTimeout(() => {
-      navigate("/game");
-    }, 3000);
-
     return () => {
       clearInterval(interval);
-      clearTimeout(timer);
     };
   }, [navigate]);
   return (

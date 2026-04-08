@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import SuspenseModal from "../modals/SuspenseModal";
+import { socket } from "../../socket/socket";
 
-function SelectThiefModal({
-  selectModal,
-  setSelectModal,
-  suspenseModal,
-  setSuspenseModal,
-}) {
-  const [active, setActive] = useState("");
-  const buttons = ["Max", "Larry", "John", "Ken"];
+function SelectThiefModal({ selectModal, setSelectModal, players, code }) {
+  const [selectedId, setSelectedId] = useState(null);
 
   const handleConfirm = () => {
-    setSelectModal(false);
-    setSuspenseModal(true);
-  };
+    if (!selectedId) return;
 
+    socket.emit("select_thief", {
+      code,
+      selectedId,
+    });
+    setSelectModal(false);
+  };
   return (
     <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
       <div className=" bg-gray-800 w-full max-w-87.5 p-6 rounded-lg shadow-xl shadow-gray-500/30">
@@ -26,15 +25,17 @@ function SelectThiefModal({
         </p>
 
         <div className=" grid grid-cols-2 md:grid-cols-3 gap-3  max-h-66 px-3 py-1 overflow-y-auto">
-          {buttons.map((btn) => (
-            <button
-              key={btn}
-              onClick={() => setActive(active === btn ? null : btn)}
-              className={`w-full text-left px-4 py-3 rounded-lg border ${active === btn ? `bg-yellow-400 text-black border-yellow-500 ` : ` border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600`} transition`}
-            >
-              {btn}
-            </button>
-          ))}
+          {players
+            ?.filter((p) => p.id !== socket.id)
+            .map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedId(p.id)}
+                className={`w-full text-left px-4 py-3 rounded-lg border ${selectedId === p.id ? `bg-yellow-400 text-black border-yellow-500 ` : ` border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600`} transition`}
+              >
+                {p.name}
+              </button>
+            ))}
         </div>
 
         <div className="flex justify-between items-center mt-6">

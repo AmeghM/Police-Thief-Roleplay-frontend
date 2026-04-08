@@ -1,6 +1,39 @@
 import React from "react";
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { socket } from "../socket/socket";
+import { useEffect } from "react";
 
 function FinalResult() {
+  const [players, setPlayers] = useState([]);
+  const navigate = useNavigate();
+  const { code } = useParams();
+
+  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  const winner = sortedPlayers[0];
+
+  const handleLeave = () => {
+    socket.emit("leave_room", code);
+    navigate("/");
+  };
+
+  const handlePlayAgain = () => {
+    socket.emit("play_again", code);
+  };
+
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem("finalPlayers"));
+    if (data) {
+      setPlayers(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    socket.on("game_restarted", () => {
+      navigate(`/lobby/${code}`);
+    });
+    return () => socket.off("game_restarted");
+  }, []);
   return (
     <div className="min-h-screen bg-gray-800 flex items-center flex-col justify-center px-4">
       <h1 className="text-white text-3xl sm:text-4xl mb-6 font-bold tracking-wide">
@@ -11,7 +44,7 @@ function FinalResult() {
           Total Scores
         </h2>
         <p className="text-center text-yellow-400 font-semibold mb-4 text-lg animate-pulse transition">
-          🏆 Max wins the game!
+          🏆 {winner?.name} wins the game!
         </p>
         <div className="overflow-hidden rounded-lg border border-gray-700">
           <table className="w-full text-sm text-gray-200">
@@ -24,34 +57,43 @@ function FinalResult() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-600">
-              <tr className="bg-yellow-500/10 border-l-4 border-yellow-400  hover:scale-[1.01]  hover:bg-gray-800/70 transition text-center">
-                <td className="px-3 py-2">1</td>
-                <td className="px-3 py-2 font-medium">Max</td>
-                <td className="px-3 py-2 font-medium">1000</td>
-                <td className="px-3 py-2">🥇</td>
-              </tr>
-              <tr className="  hover:bg-gray-800/70 transition text-center">
-                <td className="px-3 py-2">2</td>
-                <td className="px-3 py-2 font-medium">Jack</td>
-                <td className="px-3 py-2 font-medium">800</td>
-                <td className="px-3 py-2">🥈</td>
-              </tr>
-              <tr className="  hover:bg-gray-800/70 transition text-center">
-                <td className="px-3 py-2">3</td>
-                <td className="px-3 py-2 font-medium">Rock</td>
-                <td className="px-3 py-2 font-medium">700</td>
-                <td className="px-3 py-2">🥉</td>
-              </tr>
+              {sortedPlayers.map((p, index) => (
+                <tr
+                  key={p.id}
+                  className={`hover:bg-gray-800/70 transition text-center ${index === 0 ? "bg-yellow-500/10 border-l-4 border-yellow-400 transition hover:scale-[1.01]" : ""}`}
+                >
+                  <td className="px-3 py-2">{index + 1}</td>
+                  <td className="px-3 py-2 font-medium">{p.name}</td>
+                  <td className="px-3 py-2 font-medium">{p.score}</td>
+                  <td className="px-3 py-2">
+                    {index === 0
+                      ? "🥇"
+                      : index === 1
+                        ? "🥈"
+                        : index === 2
+                          ? "🥉"
+                          : ""}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
         <div className="flex justify-between items-center mt-6">
-          <button className="px-4 py-2 bg-gray-700 rounded text-white hover:bg-gray-600 hover:text-red-500 transition">
+          <button
+            onClick={handleLeave}
+            className="px-4 py-2 bg-gray-700 rounded text-white hover:bg-gray-600 hover:text-red-500 transition"
+          >
             Leave
           </button>
-          <button className="px-4 py-2 bg-green-500 rounded text-white hover:bg-green-600  font-semibold transition ">
-            Play Again
-          </button>
+          {players[0]?.id === socket.id && (
+            <button
+              onClick={handlePlayAgain}
+              className="px-4 py-2 bg-green-500 rounded text-white hover:bg-green-600  font-semibold transition "
+            >
+              Play Again
+            </button>
+          )}
         </div>
       </div>
     </div>

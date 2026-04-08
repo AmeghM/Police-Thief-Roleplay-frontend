@@ -11,9 +11,9 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/lobby" element={<Lobby />} />
-        <Route path="/game" element={<Game />} />
-        <Route path="/result" element={<FinalResult />} />
+        <Route path="/lobby/:code" element={<Lobby />} />
+        <Route path="/game/:code" element={<Game />} />
+        <Route path="/result/:code" element={<FinalResult />} />
         <Route path="/*" element={<Pnf />} />
       </Routes>
     </>

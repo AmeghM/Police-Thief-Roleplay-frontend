@@ -1,25 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-function SuspenseModal({
-  suspenseModal,
-  setSuspenseModal,
-  revealModal,
-  setRevealModal,
-}) {
-  useEffect(() => {
-    const suspense = setTimeout(() => {
-      setSuspenseModal(false);
-    }, 3000);
-
-    const reveal = setTimeout(() => {
-      setRevealModal(true);
-    }, 3000);
-
-    return () => {
-      clearTimeout(suspense);
-      reveal;
-    };
-  }, []);
+function SuspenseModal() {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
       <div className="text-center">
