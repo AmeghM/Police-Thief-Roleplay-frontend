@@ -13,7 +13,7 @@ function BannerScroll() {
       <div className="absolute left-0 top-0 h-full w-16 bg-linear-to-r from-gray-800 to-transparent z-10 pointer-events-none" />
 
       {/* RIGHT FADE */}
-      <div className="absolute right-0 top-0 h-full w-16 bg-linear-to-r from-gray-800 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 h-full w-16 bg-linear-to-r  from-transparent to-gray-800 z-10 pointer-events-none" />
 
       <motion.div
         className="flex w-max"
