@@ -43,7 +43,10 @@ function Home() {
     <>
       <NavbarWrapper />
       <section className="bg-gray-800 text-white relative py-10 overflow-hidden  h-dvh">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 min-h-200 items-center">
+        <div
+          id="play"
+          className="container mx-auto grid grid-cols-1 md:grid-cols-3 min-h-200 items-center"
+        >
           <div className=""></div>
           {/* hero image */}
           <div className="flex justify-center items-center relative mt-20 mb-4 ">
