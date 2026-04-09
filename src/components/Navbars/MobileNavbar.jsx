@@ -1,3 +1,4 @@
+import { Link } from "lucide-react";
 import React from "react";
 
 function MobileNavbar() {
@@ -7,11 +8,11 @@ function MobileNavbar() {
       bg-white/10 backdrop-blur-md border-t border-white/20 rounded-t-2xl"
     >
       <div className="flex justify-around py-3 text-white/80 text-xs">
-        <button>Home</button>
+        <Link to="/">Home</Link>
 
-        <button>How</button>
+        <a href="/#how">How</a>
 
-        <button>Play</button>
+        <a href="/#play">Play</a>
       </div>
     </div>
   );

@@ -55,19 +55,19 @@ function DesktopNavbar() {
             Home
           </Link>
 
-          <Link to="/#how" className="  hover:text-gray-300 hover:underline">
+          <a href="/#how" className="  hover:text-gray-300 hover:underline">
             How it Works
-          </Link>
+          </a>
         </div>
 
         {/* CTA */}
-        <Link
-          to="/play"
+        <a
+          href="/#play"
           className="px-4 py-2 rounded-lg bg-gray-300  font-medium
           hover:bg-gray-400 text-black hover:text-white transition-all duration-300"
         >
           Play
-        </Link>
+        </a>
       </div>
     </nav>
   );
