@@ -93,6 +93,7 @@ function Home() {
       </section>
       <BannerScroll />
       <How />
+
       <Footer />
     </>
   );
