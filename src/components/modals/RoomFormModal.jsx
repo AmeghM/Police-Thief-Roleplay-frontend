@@ -6,7 +6,14 @@ import { useEffect } from "react";
 
 function RoomFormModal({ open, setOpen, type }) {
   const [players, setPlayers] = useState(3);
-  const [roles, setRoles] = useState([]);
+  const [roles, setRoles] = useState(() => {
+    const defaultRoles = [
+      { role: "Police", points: "" },
+      { role: "Thief", points: "" },
+      { role: "", points: "" },
+    ];
+    return defaultRoles;
+  });
   const [username, setUsername] = useState("");
   const [rounds, setRounds] = useState(5);
   const [roomCode, setRoomCode] = useState("");
@@ -15,13 +22,26 @@ function RoomFormModal({ open, setOpen, type }) {
   console.log(username);
 
   const handlePlayersChange = (e) => {
-    const value = Number(e.target.value);
-    setPlayers(value);
+    const value = e.target.value;
 
-    const newRoles = Array.from({ length: value }, () => ({
-      role: "",
-      points: "",
-    }));
+    if (value === "") {
+      setPlayers("");
+      return;
+    }
+
+    const num = Number(value);
+    if (num < 3) {
+      toast.error("Minimum 3 players required");
+      return;
+    }
+    setPlayers(num);
+
+    const newRoles = Array.from({ length: num }, (_, i) => {
+      if (i === 0) return { role: "Police", points: "" };
+      if (i === 1) return { role: "Thief", points: "" };
+      return { role: "", points: "" };
+    });
+
     setRoles(newRoles);
   };
 
@@ -36,11 +56,21 @@ function RoomFormModal({ open, setOpen, type }) {
       toast.error("Enter your name");
       return;
     }
-    if (players < 3) {
+    if (!players || players < 3) {
       toast.error("Minimum 3 players required");
       return;
     }
-    const roleNames = roles.map((r) => r.role.toLowerCase());
+
+    if (!rounds || rounds < 1) {
+      toast.error("Enter valid rounds");
+      return;
+    }
+    if (roles.some((r) => !r.role.trim())) {
+      toast.error("All roles must be filled");
+      return;
+    }
+
+    const roleNames = roles.map((r) => r.role?.trim().toLowerCase());
 
     if (!roleNames.includes("police") || !roleNames.includes("thief")) {
       toast.warning("You must include at least one Police and one Thief role");
@@ -50,9 +80,12 @@ function RoomFormModal({ open, setOpen, type }) {
 
     const formData = {
       username,
-      players,
-      roles,
-      rounds,
+      players: Number(players),
+      rounds: Number(rounds),
+      roles: roles.map((r) => ({
+        role: r.role,
+        points: Number(r.points) || 0,
+      })),
     };
 
     if (!socket.connected) {
@@ -106,7 +139,7 @@ function RoomFormModal({ open, setOpen, type }) {
   if (!open) return null;
   return (
     <>
-      <Toaster position="top-center" />;
+      <Toaster position="top-center" />
       <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
         <div className="bg-gray-800 p-6 rounded-lg w-87.5 shadow-xl ">
           <h2 className="text-xl font-bold mb-4 text-center">
@@ -121,6 +154,7 @@ function RoomFormModal({ open, setOpen, type }) {
           />
           {type === "create" && (
             <>
+              <p className="text-xs text-gray-400 mb-1">Players</p>
               <input
                 type="number"
                 placeholder="No. of players (3>)"
@@ -129,12 +163,16 @@ function RoomFormModal({ open, setOpen, type }) {
                 className="border p-2 w-full mb-3 rounded-lg"
                 onChange={(e) => handlePlayersChange(e)}
               />
+              <p className="text-xs text-gray-400 mb-1">Rounds</p>
               <input
                 type="number"
                 placeholder="No. of rounds"
                 min={1}
                 value={rounds}
-                onChange={(e) => setRounds(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setRounds(value === "" ? "" : Number(value));
+                }}
                 className="border p-2 w-full mb-3 rounded-lg"
               />
               <p className="">Add the roles:</p>
@@ -142,6 +180,7 @@ function RoomFormModal({ open, setOpen, type }) {
                 {roles.map((r, index) => (
                   <div key={index} className="flex gap-2 mb-2 p-2">
                     <input
+                      value={r.role}
                       placeholder="Role (Police)"
                       className="border p-2 w-1/2 rounded"
                       onChange={(e) =>
@@ -151,6 +190,7 @@ function RoomFormModal({ open, setOpen, type }) {
 
                     <input
                       type="number"
+                      value={r.points}
                       placeholder="Points"
                       min={0}
                       className="border p-2 w-1/2 rounded"
